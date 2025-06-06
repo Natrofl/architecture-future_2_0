@@ -1,0 +1,37 @@
+@startuml
+!define RECTANGLE class
+!define ACTOR actor
+
+' Домены
+RECTANGLE Fintech as "Финтех-домен\n(банковские сервисы, кредиты, счета)"
+RECTANGLE Clinics as "Клиники\n(пациенты, услуги, расписания)"
+RECTANGLE AI as "ИИ-сервисы\n(аналитика, ML, обработка мед.данных)"
+RECTANGLE Pharma as "Фармацевтика\n(лекарства, поставки, инвентаризация)"
+RECTANGLE Electronics as "Электроника\n(оборудование, мониторинг, сервис)"
+
+' Data Lakehouse Platform
+RECTANGLE Lakehouse as "Data Lakehouse\n(центральная платформа хранения и аналитики)"
+RECTANGLE DataMarts as "Data Marts\n(витрины данных по доменам)"
+RECTANGLE Governance as "Data Governance\n(качество, безопасность, метаданные)"
+
+' BI
+RECTANGLE BI as "BI-портал\n(self-service аналитика)"
+
+' Потоки данных
+Fintech -down-> Lakehouse : Финансовые данные
+Clinics -down-> Lakehouse : Клинические данные
+AI -down-> Lakehouse : ML-результаты, аналитика
+Pharma -down-> Lakehouse : Данные о лекарствах
+Electronics -down-> Lakehouse : Данные об оборудовании
+
+Lakehouse -down-> DataMarts : Обработанные данные, витрины
+DataMarts -down-> BI : Витрины для аналитики
+
+Governance -right-> DataMarts : Метаданные, права доступа
+Governance -right-> BI : Метаданные, права доступа
+
+BI -up-> Fintech : Отчёты, аналитика
+BI -up-> Clinics : Отчёты, аналитика
+BI -up-> Pharma : Отчёты, аналитика
+BI -up-> Electronics : Отчёты, аналитика
+@enduml
