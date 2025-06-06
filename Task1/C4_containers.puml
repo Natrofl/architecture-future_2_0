@@ -1,0 +1,42 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(business_user, "Бизнес-пользователь", "Использует BI-портал для аналитики и отчётов")
+Person(clinic_operator, "Оператор клиники", "Работает с данными клиник")
+Person(admin, "Администратор", "Управляет доступом и настройками")
+
+System_Boundary(s1, "Data Platform") {
+    Container(bi_portal, "Self-Service BI-портал", "Web-приложение", "Построение и просмотр отчётов, аналитика")
+    Container(api_gateway, "API Gateway", "Web API", "Единая точка доступа к данным и сервисам")
+    Container(data_lake, "Data Lake", "Хранилище данных", "Масштабируемое хранилище сырых и обработанных данных")
+    Container(data_marts, "Data Marts", "Базы данных", "Тематические витрины для бизнес-доменов")
+    Container(etl, "ETL/ELT-платформа", "ETL/ELT", "Загрузка, обработка и трансформация данных")
+    Container(governance, "Data Governance Service", "Сервис управления", "Качество, безопасность, метаданные")
+}
+
+System_Ext(api_bus, "API-шина / ESB", "Интеграционный слой для обмена данными")
+System_Ext(fintech, "Финтех-сервисы", "Источники финансовых данных")
+System_Ext(clinics, "Клиники", "Источники медицинских данных")
+System_Ext(ai, "ИИ-сервисы", "Источники и потребители медицинских данных")
+System_Ext(pharma, "Фармацевтика", "Источники фармацевтических данных")
+System_Ext(electronics, "Электроника", "Источники данных об оборудовании")
+System_Ext(legacy_dwh, "Легаси DWH", "Ограниченное использование для отдельных доменов")
+
+Rel(business_user, bi_portal, "Использует")
+Rel(clinic_operator, bi_portal, "Использует")
+Rel(admin, bi_portal, "Администрирует")
+
+Rel(bi_portal, api_gateway, "Запросы данных и метаданных")
+Rel(api_gateway, data_marts, "Доступ к витринам данных")
+Rel(api_gateway, governance, "Запросы метаданных и прав доступа")
+Rel(data_marts, data_lake, "Получение данных для аналитики")
+Rel(etl, data_lake, "Загрузка и обработка данных")
+Rel(etl, data_marts, "Формирование витрин")
+Rel(api_bus, data_lake, "Передача данных")
+Rel(fintech, api_bus, "Передача финансовых данных")
+Rel(clinics, api_bus, "Передача медицинских данных")
+Rel(ai, api_bus, "Передача и получение медицинских данных")
+Rel(pharma, api_bus, "Передача фармацевтических данных")
+Rel(electronics, api_bus, "Передача данных об оборудовании")
+Rel(legacy_dwh, api_bus, "Ограниченная интеграция")
+@enduml
