@@ -6,21 +6,31 @@ Person(clinic_operator, "Оператор клиники", "Работает с 
 Person(admin, "Администратор", "Управляет доступом и настройками")
 
 System_Boundary(s1, "Data Platform") {
-    Container(bi_portal, "Self-Service BI-портал", "Web-приложение", "Построение и просмотр отчётов, аналитика")
+    Container(bi_portal, "BI-портал", "Web-приложение", "Self-service аналитика и отчёты для всех доменов")
     Container(api_gateway, "API Gateway", "Web API", "Единая точка доступа к данным и сервисам")
     Container(data_lake, "Data Lake", "Хранилище данных", "Масштабируемое хранилище сырых и обработанных данных")
-    Container(data_marts, "Data Marts", "Базы данных", "Тематические витрины для бизнес-доменов")
-    Container(etl, "ETL/ELT-платформа", "ETL/ELT", "Загрузка, обработка и трансформация данных")
-    Container(governance, "Data Governance Service", "Сервис управления", "Качество, безопасность, метаданные")
+    Container(data_marts, "Data Marts", "Базы данных", "Витрины данных для бизнес-доменов")
+    Container(etl, "ETL/ELT", "ETL/ELT-платформа", "Загрузка, обработка и трансформация данных")
+    Container(governance, "Data Governance", "Сервис управления", "Качество, безопасность, метаданные")
 }
 
-System_Ext(api_bus, "API-шина / ESB", "Интеграционный слой для обмена данными")
-System_Ext(fintech, "Финтех-сервисы", "Источники финансовых данных")
-System_Ext(clinics, "Клиники", "Источники медицинских данных")
-System_Ext(ai, "ИИ-сервисы", "Источники и потребители медицинских данных")
-System_Ext(pharma, "Фармацевтика", "Источники фармацевтических данных")
-System_Ext(electronics, "Электроника", "Источники данных об оборудовании")
-System_Ext(legacy_dwh, "Легаси DWH", "Ограниченное использование для отдельных доменов")
+Container(fintech, "Финтех-домен", "Банковские сервисы, кредиты, счета")
+Container(fintech_exporter, "Финтех-экспортёр", "Data Exporter", "Экспорт финансовых данных в Data Lake")
+
+Container(clinics, "Клиники-домен", "Пациенты, услуги, расписания")
+Container(clinics_exporter, "Клиники-экспортёр", "Data Exporter", "Экспорт клинических данных в Data Lake")
+
+Container(ai, "ИИ-домен", "Аналитика, ML, обработка мед.данных")
+Container(ai_exporter, "ИИ-экспортёр", "Data Exporter", "Экспорт аналитических данных в Data Lake")
+
+Container(pharma, "Фармацевтика-домен", "Лекарства, поставки, инвентаризация")
+Container(pharma_exporter, "Фармацевтика-экспортёр", "Data Exporter", "Экспорт фармацевтических данных в Data Lake")
+
+Container(electronics, "Электроника-домен", "Оборудование, мониторинг, сервис")
+Container(electronics_exporter, "Электроника-экспортёр", "Data Exporter", "Экспорт данных об оборудовании в Data Lake")
+
+Container(legacy_dwh, "Легаси DWH", "Ограниченное использование для отдельных доменов")
+Container(api_bus, "API-шина / ESB", "Интеграционный слой для обмена данными (Legacy)")
 
 Rel(business_user, bi_portal, "Использует")
 Rel(clinic_operator, bi_portal, "Использует")
@@ -32,11 +42,26 @@ Rel(api_gateway, governance, "Запросы метаданных и прав д
 Rel(data_marts, data_lake, "Получение данных для аналитики")
 Rel(etl, data_lake, "Загрузка и обработка данных")
 Rel(etl, data_marts, "Формирование витрин")
-Rel(api_bus, data_lake, "Передача данных")
-Rel(fintech, api_bus, "Передача финансовых данных")
-Rel(clinics, api_bus, "Передача медицинских данных")
-Rel(ai, api_bus, "Передача и получение медицинских данных")
-Rel(pharma, api_bus, "Передача фармацевтических данных")
-Rel(electronics, api_bus, "Передача данных об оборудовании")
-Rel(legacy_dwh, api_bus, "Ограниченная интеграция")
+Rel(governance, data_marts, "Метаданные, права доступа")
+Rel(governance, bi_portal, "Метаданные, права доступа")
+
+' Потоки данных из доменов через экспортеры
+Rel(fintech, fintech_exporter, "Передача финансовых данных")
+Rel(fintech_exporter, data_lake, "Экспорт финансовых данных")
+
+Rel(clinics, clinics_exporter, "Передача клинических данных")
+Rel(clinics_exporter, data_lake, "Экспорт клинических данных")
+
+Rel(ai, ai_exporter, "Передача аналитических данных")
+Rel(ai_exporter, data_lake, "Экспорт аналитических данных")
+
+Rel(pharma, pharma_exporter, "Передача фармацевтических данных")
+Rel(pharma_exporter, data_lake, "Экспорт фармацевтических данных")
+
+Rel(electronics, electronics_exporter, "Передача данных об оборудовании")
+Rel(electronics_exporter, data_lake, "Экспорт данных об оборудовании")
+
+Rel(legacy_dwh, api_bus, "Исторические данные (ограниченно)")
+Rel(api_bus, data_lake, "Исторические данные (ограниченно)")
+
 @enduml
